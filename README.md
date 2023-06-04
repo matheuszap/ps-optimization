@@ -1,1 +1,1 @@
-# ps-optimization
+# Particle Swarm Optimization
