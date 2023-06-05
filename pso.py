@@ -1,21 +1,25 @@
 import random
+import math
 
 class Particle:
     def __init__(self, dimensions, lower_bound, upper_bound):
         self.position = [random.uniform(lower_bound, upper_bound) for _ in range(dimensions)]
-        self.velocity = [0.0] * dimensions
+        self.velocity = [random.uniform(0, 10)] * dimensions
         self.personal_best_position = self.position.copy()
         self.personal_best_fitness = float('inf')
 
-# Definir os parâmetros do PSO
+    def evaluate_griewank(self):
+        top1 = sum(x ** 2 for x in self.position)
+        top2 = math.prod(math.cos(p / math.sqrt(i + 1)) for i, p in enumerate(self.position))
+        top = (1 / 4000) * top1 - top2 + 1
+
+        self.personal_best_fitness = top
+
+# Parâmetros do PSO
 num_particles = 30
 num_dimensions = 10
-max_iterations = 100
-c1 = 2.0  # Coeficiente cognitivo
-c2 = 2.0  # Coeficiente social
-w = 0.7  # Inércia
 
-# Definir limites para as variáveis
+# Limites para as variáveis
 lower_bound = -100.0
 upper_bound = 100.0
 
@@ -24,11 +28,30 @@ particles = [Particle(num_dimensions, lower_bound, upper_bound) for _ in range(n
 global_best_position = [0.0] * num_dimensions
 global_best_fitness = float('inf')
 
-# Imprimir informações das partículas
+# Avaliação das Partículas
+for particle in particles:
+    particle.evaluate_griewank()
+    fitness = particle.personal_best_fitness
+
+    # Atualiza o personal best (Partícula)
+    if fitness < particle.personal_best_fitness:
+        particle.personal_best_fitness = fitness
+        particle.personal_best_position = particle.position.copy()
+
+    # Atualiza o global best (Enxame)
+    if fitness < global_best_fitness:
+        global_best_fitness = fitness
+        global_best_position = particle.position.copy()
+
+# Informações das partículas
 for i, particle in enumerate(particles):
     print("Partícula", i+1)
     print("Posição atual:", particle.position)
     print("Velocidade:", particle.velocity)
-    print("Melhor posição pessoal:", particle.personal_best_position)
-    print("Melhor fitness pessoal:", particle.personal_best_fitness)
+    print("Melhor posição:", particle.personal_best_position)
+    print("Melhor fitness:", particle.personal_best_fitness)
     print("---------------------------------------")
+
+# Informação do Enxame
+print("Melhor posição do enxame:", global_best_position)
+print("Melhor fitness do enxame:", global_best_fitness)
