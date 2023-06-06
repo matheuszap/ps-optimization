@@ -3,8 +3,8 @@ import math
 
 class Particle:
     def __init__(self, dimensions, lower_bound, upper_bound):
-        self.position = [random.uniform(lower_bound, upper_bound) for _ in range(dimensions)]
-        self.velocity = [random.uniform(0, 10)] * dimensions
+        self.position = [round(random.uniform(lower_bound, upper_bound), 3) for _ in range(dimensions)]
+        self.velocity = [round(random.uniform(0, 10), 3)] * dimensions
         self.personal_best_position = self.position.copy()
         self.personal_best_fitness = float('inf')
 
@@ -13,11 +13,12 @@ class Particle:
         top2 = math.prod(math.cos(p / math.sqrt(i + 1)) for i, p in enumerate(self.position))
         top = (1 / 4000) * top1 - top2 + 1
 
-        self.personal_best_fitness = top
+        self.personal_best_fitness = round(top, 3)
 
 # Parâmetros do PSO
-num_particles = 30
+num_particles = 2
 num_dimensions = 10
+max_iterations = 1000
 
 # Limites para as variáveis
 lower_bound = -100.0
@@ -28,20 +29,31 @@ particles = [Particle(num_dimensions, lower_bound, upper_bound) for _ in range(n
 global_best_position = [0.0] * num_dimensions
 global_best_fitness = float('inf')
 
-# Avaliação das Partículas
-for particle in particles:
-    particle.evaluate_griewank()
-    fitness = particle.personal_best_fitness
+# Iterações do PSO
+for _ in range(max_iterations):
+    # Avaliação das Partículas
+    for particle in particles:
+        particle.evaluate_griewank()
+        fitness = particle.personal_best_fitness
 
-    # Atualiza o personal best (Partícula)
-    if fitness < particle.personal_best_fitness:
-        particle.personal_best_fitness = fitness
-        particle.personal_best_position = particle.position.copy()
+        # Atualiza o personal best (Partícula)
+        if fitness < particle.personal_best_fitness:
+            particle.personal_best_position = particle.position.copy()
+            particle.personal_best_fitness = fitness
 
-    # Atualiza o global best (Enxame)
-    if fitness < global_best_fitness:
-        global_best_fitness = fitness
-        global_best_position = particle.position.copy()
+        # Atualiza o global best (Enxame)
+        if fitness < global_best_fitness:
+            global_best_fitness = fitness
+            global_best_position = particle.position.copy()
+
+    # Atualizar as posições das partículas
+    for particle in particles:
+        for i in range(num_dimensions):
+            # Atualizar posição
+            position = particle.position[i]
+            velocity = particle.velocity[i]
+            new_position = position + velocity
+            particle.position[i] = round(new_position, 3)
 
 # Informações das partículas
 for i, particle in enumerate(particles):
