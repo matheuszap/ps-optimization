@@ -1,6 +1,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 def evaluate_griewank(position):
     d = len(position)
@@ -8,10 +9,10 @@ def evaluate_griewank(position):
     prod = 1.0
 
     for i in range(d):
-        sum += position[i] ** 2
-        prod *= math.cos(position[i] / math.sqrt(i + 1))
+        sum += position[i] ** 2.0
+        prod *= np.cos(position[i] / np.sqrt(i + 1.0))
 
-    top = (sum / 4000) - prod + 1
+    top = (sum / 4000.0) - prod + 1.0
 
     return top
 
@@ -41,8 +42,8 @@ class Particle:
         self.personal_best_fitness = float('inf')
 
     def evaluate_fitness(self):
-        #fitness = evaluate_griewank(self.position)
-        fitness = evaluate_ackley(self.position)
+        fitness = evaluate_griewank(self.position)
+        #fitness = evaluate_ackley(self.position)
 
         # Atualiza o personal best (Partícula)
         if fitness < self.personal_best_fitness:
@@ -53,24 +54,26 @@ class Particle:
 
 # Parâmetros do PSO
 num_particles = 50
-num_dimensions = 10
+num_dimensions = 20
 max_iterations = 1000
 
 # Limites para as variáveis
-lower_bound = -32.768
-upper_bound = 32.768
+#lower_bound = -32.768
+#upper_bound = 32.768
 
-#lower_bound = -100.0
-#upper_bound = 100.0
+lower_bound = -600.0
+upper_bound = 600.0
 
 # Inicializar as partículas
 particles = [Particle(num_dimensions, lower_bound, upper_bound) for _ in range(num_particles)]
 global_best_position = [0.0] * num_dimensions
 global_best_fitness = float('inf')
 
-w = 0.7  # Fator de inércia
+w = 0.3  # Fator de inércia
 c1 = 2.05  # Coeficiente de aprendizagem para a melhor posição pessoal
 c2 = 2.05  # Coeficiente de aprendizagem para a melhor posição global
+
+k = 2 / (np.abs(2 - (c1 + c2) - np.sqrt((c1 + c2)**2 - 4 * (c1 + c2))))
 
 # Armazenar a média e o melhor global a cada iteração
 mean_fitness = []
@@ -88,14 +91,16 @@ for _ in range(max_iterations):
             global_best_position = particle.position.copy()
 
         for i in range(num_dimensions):
-            rand1 = random.uniform(0, 1)
-            rand2 = random.uniform(0, 1)   
+            rand1 = np.random.rand()
+            rand2 = np.random.rand()
+            
             # Atualiza a velocidade da partícula
-            new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))
+            new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))     
             particle.velocity[i] = new_velocity
 
             # Atualiza a posição da partícula
             new_position = particle.position[i] + particle.velocity[i]
+
             # Verifica se a nova posição está fora dos limites
             if new_position < lower_bound:
                 new_position = lower_bound
