@@ -2,15 +2,36 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-# Armazenar a média e o melhor global a cada iteração
-mean_fitness = []
-best_fitness = []
-
 def evaluate_griewank(position):
-    top1 = sum(x ** 2 for x in position)
-    top2 = math.prod(math.cos(p / math.sqrt(i + 1)) for i, p in enumerate(position))
-    top = (1 / 4000) * top1 - top2 + 1
+    d = len(position)
+    sum = 0.0
+    prod = 1.0
+
+    for i in range(d):
+        sum += position[i] ** 2
+        prod *= math.cos(position[i] / math.sqrt(i + 1))
+
+    top = (sum / 4000) - prod + 1
+
     return top
+
+def evaluate_ackley(position):
+    d = len(position)
+    aux1 = 0.0
+    aux2 = 0.0
+
+    for i in range(d):
+        aux1 += position[i] * position[i]
+        aux2 += math.cos(2.0 * math.pi * position[i])
+
+    result = (
+        -20.0 * math.exp(-0.2 * math.sqrt(1.0 / d * aux1))
+        - math.exp(1.0 / d * aux2)
+        + 20.0
+        + math.exp(1)
+    )
+
+    return result
 
 class Particle:
     def __init__(self, dimensions, lower_bound, upper_bound):
@@ -20,7 +41,8 @@ class Particle:
         self.personal_best_fitness = float('inf')
 
     def evaluate_fitness(self):
-        fitness = evaluate_griewank(self.position)
+        #fitness = evaluate_griewank(self.position)
+        fitness = evaluate_ackley(self.position)
 
         # Atualiza o personal best (Partícula)
         if fitness < self.personal_best_fitness:
@@ -32,11 +54,14 @@ class Particle:
 # Parâmetros do PSO
 num_particles = 50
 num_dimensions = 10
-max_iterations = 10000
+max_iterations = 1000
 
 # Limites para as variáveis
-lower_bound = -100.0
-upper_bound = 100.0
+lower_bound = -32.768
+upper_bound = 32.768
+
+#lower_bound = -100.0
+#upper_bound = 100.0
 
 # Inicializar as partículas
 particles = [Particle(num_dimensions, lower_bound, upper_bound) for _ in range(num_particles)]
@@ -44,8 +69,12 @@ global_best_position = [0.0] * num_dimensions
 global_best_fitness = float('inf')
 
 w = 0.7  # Fator de inércia
-c1 = 2.0  # Coeficiente de aprendizagem para a melhor posição pessoal
-c2 = 2.0  # Coeficiente de aprendizagem para a melhor posição global
+c1 = 2.05  # Coeficiente de aprendizagem para a melhor posição pessoal
+c2 = 2.05  # Coeficiente de aprendizagem para a melhor posição global
+
+# Armazenar a média e o melhor global a cada iteração
+mean_fitness = []
+best_fitness = []
 
 # Iterações do PSO
 for _ in range(max_iterations):
@@ -84,8 +113,8 @@ print(global_best_fitness)
 print(global_best_position)
 
 # Plotar o gráfico
-plt.plot(range(max_iterations), mean_fitness, label='Média do Enxame')
-plt.plot(range(max_iterations), best_fitness, label='Melhor Global')
+plt.plot(range(max_iterations), mean_fitness, label='Média do Enxame', color="red")
+plt.plot(range(max_iterations), best_fitness, label='Melhor Global', color="green")
 plt.xlabel('Iterações')
 plt.ylabel('Função Objetivo')
 plt.title('Convergência do PSO')
