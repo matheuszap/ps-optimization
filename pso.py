@@ -2,6 +2,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 def evaluate_griewank(position):
     d = len(position)
@@ -9,10 +10,10 @@ def evaluate_griewank(position):
     prod = 1.0
 
     for i in range(d):
-        sum += position[i] ** 2.0
-        prod *= np.cos(position[i] / np.sqrt(i + 1.0))
+        sum += position[i] ** 2
+        prod *= math.cos(position[i] / math.sqrt(i + 1))
 
-    top = (sum / 4000.0) - prod + 1.0
+    top = (sum / 4000) - prod + 1
 
     return top
 
@@ -97,17 +98,7 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
         mean_fitness.append(sum(particle.personal_best_fitness for particle in particles) / num_particles)
         best_fitness.append(global_best_fitness)
 
-    print("Melhor resultado:", global_best_fitness)
-    print("Melhor posição:", global_best_position)
-
-    # Plotar o gráfico
-    plt.plot(range(max_iterations), mean_fitness, label='Média do Enxame', color="red")
-    plt.plot(range(max_iterations), best_fitness, label='Melhor Global', color="green")
-    plt.xlabel('Iterações')
-    plt.ylabel('Função Objetivo')
-    plt.title('Convergência do PSO')
-    plt.legend()
-    plt.show()
+    return global_best_fitness
 
 # Parâmetros do PSO
 num_particles = 50
@@ -116,4 +107,27 @@ max_iterations = 1000
 lower_bound = -32.768
 upper_bound = 32.768
 
-pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
+num_executions = 5
+results = []
+execution_times = []
+
+for _ in range(num_executions):
+    start_time = time.time()
+    result = pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
+    execution_time = time.time() - start_time
+    execution_times.append(execution_time)
+    results.append(result)
+
+mean = np.mean(results)
+std = np.std(results)
+mean_execution_time = np.mean(execution_times)
+
+with open("ackley_result.txt", "w") as f:
+    f.write(str(mean) + "\n")
+    f.write(str(std) + "\n")
+    f.write(str(mean_execution_time) + "\n")
+
+print("Média de execução:", mean)
+print("Desvio padrão:", std)
+print("Tempo médio de execução:", mean_execution_time)
+
