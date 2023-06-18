@@ -43,8 +43,8 @@ class Particle:
         self.personal_best_fitness = float('inf')
 
     def evaluate_fitness(self):
-        fitness = evaluate_griewank(self.position)
-        #fitness = evaluate_ackley(self.position)
+        #fitness = evaluate_griewank(self.position)
+        fitness = evaluate_ackley(self.position)
 
         # Atualiza o personal best (Partícula)
         if fitness < self.personal_best_fitness:
@@ -59,10 +59,10 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
     global_best_position = [0.0] * num_dimensions
     global_best_fitness = float('inf')
 
-    w = 0.7  # Fator de inércia
+    w = 0.7 # Fator de inércia
     c1 = 2.05  # Coeficiente de aprendizagem para a melhor posição pessoal
     c2 = 2.05  # Coeficiente de aprendizagem para a melhor posição global
-    #k = 2 / (np.abs(2 - (c1 + c2) - np.sqrt((c1 + c2)**2 - 4 * (c1 + c2))))
+    k = 2 / (np.abs(2 - (c1 + c2) - np.sqrt((c1 + c2)**2 - 4 * (c1 + c2))))
 
     # Armazenar a média e o melhor global a cada iteração
     mean_fitness = []
@@ -84,11 +84,11 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
                 rand2 = random.uniform(0, 1)   
 
                 # Atualiza a velocidade da partícula
-                new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))
-                particle.velocity[i] = new_velocity
-
-                #new_velocity = k*((w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i])))
+                #new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))
                 #particle.velocity[i] = new_velocity
+
+                new_velocity = k*((w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i])))
+                particle.velocity[i] = new_velocity
 
                 # Atualiza a posição da partícula
                 new_position = particle.position[i] + particle.velocity[i]
@@ -103,16 +103,29 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
         mean_fitness.append(sum(particle.personal_best_fitness for particle in particles) / num_particles)
         best_fitness.append(global_best_fitness)
 
+    # Plotar o gráfico
+    plt.plot(range(max_iterations), mean_fitness, label='Média do Enxame', color="red")
+    plt.plot(range(max_iterations), best_fitness, label='Melhor Global', color="green")
+    plt.xlabel('Iterações')
+    plt.ylabel('Função Objetivo')
+    plt.title('Convergência do PSO')
+    plt.legend()
+    #plt.show()
+    plt.savefig('ackley_k.png')
+
     return global_best_fitness
 
 # Parâmetros do PSO
 num_particles = 50
 num_dimensions = 10
 max_iterations = 1000
-lower_bound = -600.0
-upper_bound = 600.0
+#lower_bound = -600.0
+#upper_bound = 600.0
 
-num_executions = 5
+lower_bound = -32.768
+upper_bound = 32.768
+
+num_executions = 1
 results = []
 execution_times = []
 
@@ -127,10 +140,10 @@ mean = np.mean(results)
 std = np.std(results)
 mean_execution_time = np.mean(execution_times)
 
-with open("griewank_result_w.txt", "w") as f:
-    f.write(str(mean) + "\n")
-    f.write(str(std) + "\n")
-    f.write(str(mean_execution_time) + "\n")
+#with open("griewank_result_w.txt", "w") as f:
+#    f.write(str(mean) + "\n")
+#    f.write(str(std) + "\n")
+#    f.write(str(mean_execution_time) + "\n")
 
 print("Média de execução:", mean)
 print("Desvio padrão:", std)
