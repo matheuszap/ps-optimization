@@ -1,6 +1,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 def evaluate_griewank(position):
     d = len(position)
@@ -8,10 +9,10 @@ def evaluate_griewank(position):
     prod = 1.0
 
     for i in range(d):
-        sum += position[i] ** 2
-        prod *= math.cos(position[i] / math.sqrt(i + 1))
+        sum += position[i] ** 2.0
+        prod *= np.cos(position[i] / np.sqrt(i + 1.0))
 
-    top = (sum / 4000) - prod + 1
+    top = (sum / 4000.0) - prod + 1.0
 
     return top
 
