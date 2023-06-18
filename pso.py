@@ -62,7 +62,7 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
     w = 0.7  # Fator de inércia
     c1 = 2.05  # Coeficiente de aprendizagem para a melhor posição pessoal
     c2 = 2.05  # Coeficiente de aprendizagem para a melhor posição global
-    k = 2 / (np.abs(2 - (c1 + c2) - np.sqrt((c1 + c2)**2 - 4 * (c1 + c2))))
+    #k = 2 / (np.abs(2 - (c1 + c2) - np.sqrt((c1 + c2)**2 - 4 * (c1 + c2))))
 
     # Armazenar a média e o melhor global a cada iteração
     mean_fitness = []
@@ -84,11 +84,11 @@ def pso(num_particles, num_dimensions, max_iterations, lower_bound, upper_bound)
                 rand2 = random.uniform(0, 1)   
 
                 # Atualiza a velocidade da partícula
-                #new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))
-                #particle.velocity[i] = new_velocity
-
-                new_velocity = k*((w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i])))
+                new_velocity = (w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i]))
                 particle.velocity[i] = new_velocity
+
+                #new_velocity = k*((w * particle.velocity[i]) + (c1 * rand1 * (particle.personal_best_position[i] - particle.position[i])) + (c2 * rand2 * (global_best_position[i] - particle.position[i])))
+                #particle.velocity[i] = new_velocity
 
                 # Atualiza a posição da partícula
                 new_position = particle.position[i] + particle.velocity[i]
@@ -127,7 +127,7 @@ mean = np.mean(results)
 std = np.std(results)
 mean_execution_time = np.mean(execution_times)
 
-with open("griewank_result_k.txt", "w") as f:
+with open("griewank_result_w.txt", "w") as f:
     f.write(str(mean) + "\n")
     f.write(str(std) + "\n")
     f.write(str(mean_execution_time) + "\n")
